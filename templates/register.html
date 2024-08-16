@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block body%}
+
+    <div class="main" style="height: 100vh;">
+        <div class="card text-center" style="width: 25rem;
+                                             background-color: #393E46;
+                                             color: #EEEEEE;
+                                             border-radius: 15px;
+                                             position: absolute;
+                                             left: 50%;
+                                             transform: translate(-50%, 0);
+                                             top: 15%;">
+
+            <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=2074&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top" alt="..." style="height: 12rem; border-radius: 15px; border-bottom-left-radius: 0; border-bottom-right-radius: 0;">
+            <div class="card-body">
+                <h5 class="title">Register</h5>
+                <p class="card-text">
+                    {% if error %}
+                        <div>
+                            <ul class="error-messages">
+                                <li>{{ error }}</li>
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form action="/register" method="post" style="text-align: left;">
+                        <label for="username" class="form-label">Username</label>
+                        <input id="username" name="username" value="{{ username }}" class="form-control" type="text" aria-label="default input example">
+                        <br>
+                        <label for="inputPassword" class="form-label">Password</label>
+                        <input name="password" type="password" id="inputPassword" class="form-control" aria-describedby="passwordHelpBlock">
+                        <div class="form-text" style="color: #999999;">
+                            Must be 8-20 characters long.
+                        </div>
+                        <br>
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <input name="confirmPassword" type="password" id="confirmPassword" class="form-control" aria-describedby="passwordHelpBlock">
+                        <br>
+                        <button class="btn btn-primary" type="submit" style="background-color: #D65A31;
+                                                                             color: #EEE;
+                                                                             position: absolute;
+                                                                             left: 50%;
+                                                                             border: none;
+                                                                             transform: translate(-50%, 0);">Register</button>
+                        <br><br>
+                    </form>
+
+                    <normal>Already have an account? </normal>
+                    <a href="/login">login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

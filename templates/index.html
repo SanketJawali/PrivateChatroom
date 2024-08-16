@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block body%}
+<div class="main ">
+    <p class="title txt-center">Welcome, {{ username }}!</p>
+    <hr>
+    <div class="card-container">
+        <div class="card text-bg-dark mb-3" style="width: 18rem; border: 2px solid #a3a3a3;">
+            <div class="card-body txt-center">
+                <form action="/create" method="post">
+                    <h3 class="card-title">Create Chatroom</h3>
+                    <h6 class="card-subtitle mb-2 text-body-secondary">Card subtitle</h6>
+                    <p class="card-text">
+                        Create a Private Chatroom <br>
+
+                        {% if create_error %}
+                            <div>
+                                <ul class="error-messages">
+                                    <li>{{ create_error }}</li>
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        <div class="input-group flex-nowrap">
+                            <input name="nickname" type="text" class="form-control" placeholder="Choose a nickname">
+                        </div><br>
+                        <div class="input-group flex-wrap">
+                            <input name="participants" type="number" class="form-control" placeholder="Max participants" value="2" min="2" max="8">
+                        </div>
+                    </p>
+                    <button id="create" type="submit">Create Chatroom</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card text-bg-dark mb-3" style="width: 18rem; border: 2px solid #a3a3a3;">
+            <div class="card-body txt-center">
+                <form action="/join" method="post">
+                    <h3 class="card-title">Join Chatroom</h3>
+                    <h6 class="card-subtitle mb-2 text-body-secondary">Card subtitle</h6>
+                    <p class="card-text">
+                        Join a Chatroom <br>
+
+                        {% if join_error %}
+                            <div>
+                                <ul class="error-messages">
+                                    <li>{{ join_error }}</li>
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        <div class="input-group flex-wrap">
+                            <input name="nickname" type="text" class="form-control" placeholder="Choose a nickname">
+                        </div><br>
+                        <div class="input-group flex-wrap">
+                            <input name="chatroom_code" type="text" class="form-control" placeholder="Chatroom code" minlength="6" maxlength="6">
+                        </div>
+                    </p>
+                    <button id="join" type="submit">Join Chatroom</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

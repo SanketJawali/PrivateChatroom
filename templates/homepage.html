@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block body%}
+    <div class="content-box">
+        <h1 style="font-size: 6rem;
+                   color: #D65A31;
+                   -webkit-text-stroke: 1.5px #EEEEEE;">
+            <i><b>EPHEMERA</b></i>
+        </h1><br>
+        <h2 class="title">We Offer:</h2>
+        <ul>
+            <li class="info">Secure Communication Using End-to-End Encryption</li>
+            <li class="info">Anonymous Chatting</li>
+            <li class="info">No Login Required</li>
+            <li class="info">Easy Access On All Devices</li>
+        </ul><br>
+    </div>
+    <hr><br>
+    <div class="home-btn">
+        <a href="/create"><button type="button">Create Chatroom</button></a>
+        <a href="/join"><button type="button">Join Chatroom</button></a>
+    </div>
+    <div class="home-btn">
+        <a href="#more_info"><button type="button">Learn More</button></a>
+    </div><br>
+    <hr><br>
+    <div id="more_info" class="content-box">
+        <h2><b>What you get:</b></h2><br>
+        <ul>
+            <li>
+                <div class="title">Privacy and Security:</div>
+                <div class="info indent">We provide a secure platform which is end-to-end encrypted, ensuring user privacy.</div>
+            </li><br>
+            <li>
+                <div class="title">Ease Of Use:</div>
+                <div class="info indent">We ensure the interface is simple and intuitive. We make in easy to connect with people Easier and more Secure.</div>
+            </li><br>
+            <li>
+                <div class="title">Anonymity:</div>
+                <div class="info indent">You can Create and Join a Chatroom without ever needing to Sign in to ensure your Identity is consealed over the internet.</div>
+            </li><br>
+            <li>
+                <div class="title">Real-Time Updates:</div>
+                <div class="info indent">Your messages are sent and received in Real-Time ensuring meaningful conversations.</div>
+            </li>
+        </ul>
+    </div>
+
+{% endblock %}
