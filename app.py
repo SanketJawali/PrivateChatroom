@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, redirect, render_template, request, session
+from flask import Flask, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 from random import choice
 from string import ascii_letters, digits
@@ -59,7 +59,7 @@ def create():
         # Storing the data in session
         session["nickname"] = nickname
         session["room"] = room
-        return render_template("room.html", code=room)
+        return redirect(url_for("room"))
         
         # room = session.get("room")
         # rooms[room]["members"] += nickname
@@ -108,7 +108,7 @@ def join():
 
         rooms[room]["members"].append(nickname)
 
-        return render_template("room.html", code=room)
+        return redirect(url_for("room"))
 
     # return render_template("index.html", username=session.get("username"))
     return redirect("/index", username=session.get("username"))
@@ -244,12 +244,25 @@ def room():
     """ Entering the chatroom """
 
     room = session.get("room")
-    if room is None or session.get("nickname") is None or room not in rooms:
-        return render_template("index.html")
     
-    members = rooms[room]["members"]
+    if not room:
+        msg = "No Room found"
+        return render_template("index.html", common_error=msg)
+    
+    # Ensure that the room code is valid and exists in the `rooms` dictionary
+    if room not in rooms:
+        msg = "Room does not exist"
+        return render_template("index.html", common_error=msg)
 
-    return render_template("room.html", code=room, members=members) 
+    members = rooms[room]["members"]
+    return render_template("room.html", code=room, members=members)
+    
+    # if room is None or session.get("nickname") is None or room not in rooms:
+    #     return render_template("index.html")
+    
+    # members = rooms[room]["members"]
+
+    # return render_template("room.html", code=room, members=members) 
 
 
 @socketio.on("message")
