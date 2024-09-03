@@ -50,7 +50,10 @@ def create():
         
 
         if not nickname or not participants:
-            return redirect("/index", create_error="Missing Nickname or Participant count")
+            session["create_error"] = "Missing Nickname or Participant count"
+            if session.get("username"):
+                return redirect("/index")
+            return redirect("/")            
 
         # if session.get("room") is None:
         room = generate_unique_code(6)
@@ -60,15 +63,6 @@ def create():
         session["nickname"] = nickname
         session["room"] = room
         return redirect(url_for("room"))
-        
-        # room = session.get("room")
-        # rooms[room]["members"] += nickname
-
-        # # Storing the data in session
-        # # session["nickname"] = nickname
-        # session["room"] = room
-
-        # return render_template("room.html", code=session.get("room"))
 
     return redirect("/index", username=session["username"])
 
@@ -84,7 +78,15 @@ def homepage():
 def index():
     """ Display index page after login """
 
-    return render_template("index.html", username=session["username"])
+    create_error = ""
+    create_error = session.pop("create_error", None)
+    # session.pop("create_error")
+
+    join_error = ""
+    join_error = session.pop("join_error", None)
+    # session.pop("join_error")
+
+    return render_template("index.html", username=session.get("username"), join_error=join_error, create_error=create_error)
 
 
 @app.route("/join", methods=["GET", "POST"])
@@ -98,10 +100,16 @@ def join():
         room = request.form.get("chatroom_code")
 
         if not nickname or not room:
-            return render_template("index.html", username=session["username"], join_error="Missing Nickname or Room Code")
+            session["join_error"] = "Missing Nickname or Room Code"
+            if session.get("username"):
+                return redirect("/index")
+            return redirect("/")
         
         if room not in rooms:
-            return render_template("index.html", username=session["username"], join_error="Enter a valid Room Code")
+            session["join_error"] = "Enter a valid Room Code"
+            if session.get("username"):
+                return redirect("/index")
+            return redirect("/")
         
         session["nickname"] = nickname
         session["room"] = room
@@ -111,7 +119,9 @@ def join():
         return redirect(url_for("room"))
 
     # return render_template("index.html", username=session.get("username"))
-    return redirect("/index", username=session.get("username"))
+    if session.get("username"):
+        return redirect(url_for("index"))
+    return redirect("/")
 
 
 @app.route("/leave")
