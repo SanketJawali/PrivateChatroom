@@ -3,7 +3,7 @@ from flask import Flask, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 from random import choice
 from string import ascii_letters, digits
-from flask_socketio import SocketIO, leave_room, join_room, send
+from flask_socketio import SocketIO, leave_room, join_room, send, emit
 from datetime import timedelta
 
 # Configure application
@@ -12,7 +12,6 @@ app.config['SECRET_KEY'] = 'code'
 socketio = SocketIO(app)
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
-# Configure CS50 Library to use SQLite database
 data = sqlite3.connect("userdata.db", check_same_thread = False)
 db = data.cursor()
 
@@ -47,7 +46,6 @@ def create():
     if request.method == "POST":
         nickname = request.form.get("nickname")
         participants = request.form.get("participants")
-        
 
         if not nickname or not participants:
             session["create_error"] = "Missing Nickname or Participant count"
@@ -57,8 +55,8 @@ def create():
 
         # if session.get("room") is None:
         room = generate_unique_code(6)
-        rooms[room] = {"participants": 0, "messages": [], "members": []}
-        rooms[room]["members"] += nickname
+        rooms[room] = {"participants": 0, "messages": [], "members": [], "maxParticipants": int(participants)}
+
         # Storing the data in session
         session["nickname"] = nickname
         session["room"] = room
@@ -80,11 +78,9 @@ def index():
 
     create_error = ""
     create_error = session.pop("create_error", None)
-    # session.pop("create_error")
 
     join_error = ""
     join_error = session.pop("join_error", None)
-    # session.pop("join_error")
 
     return render_template("index.html", username=session.get("username"), join_error=join_error, create_error=create_error)
 
@@ -111,14 +107,17 @@ def join():
                 return redirect("/index")
             return redirect("/")
         
+        if rooms[room]["participants"] == rooms[room]["maxParticipants"]:
+            session["join_error"] = "Room is currently full"
+            if session.get("username"):
+                return redirect("/index")
+            return redirect("/")
+        
         session["nickname"] = nickname
         session["room"] = room
 
-        rooms[room]["members"].append(nickname)
-
         return redirect(url_for("room"))
 
-    # return render_template("index.html", username=session.get("username"))
     if session.get("username"):
         return redirect(url_for("index"))
     return redirect("/")
@@ -175,12 +174,6 @@ def login():
         if user is None or not check_password_hash(user[1], password):
             return render_template("login.html", error = "Invalid username and/or password", username = username, password = password)
 
-        # Remember which user has logged in
-        
-        # Debug
-        # print(rows.fetchall())
-        # print(len(rows.fetchall()[0]))
-
         session["user_id"] = user[0]
         session["username"] = username
 
@@ -225,9 +218,6 @@ def register():
         if password != confirm_password:
             return render_template("register.html", error="Password didn't match", username=username)
 
-        # debug
-        # print(db.execute("SELECT COUNT(*) FROM users WHERE username=?;", [username]).fetchall()[0][0])
-
         # Error if username already taken
         # The below sql quere outputs a dictionary, checking if the first elements value is 0
         user = db.execute("SELECT COUNT(*) FROM users WHERE username = ?", (username,)).fetchone()
@@ -265,14 +255,7 @@ def room():
         return render_template("index.html", common_error=msg)
 
     members = rooms[room]["members"]
-    return render_template("room.html", code=room, members=members)
-    
-    # if room is None or session.get("nickname") is None or room not in rooms:
-    #     return render_template("index.html")
-    
-    # members = rooms[room]["members"]
-
-    # return render_template("room.html", code=room, members=members) 
+    return render_template("room.html", code=room) 
 
 
 @socketio.on("message")
@@ -281,13 +264,15 @@ def message(data):
     if room not in rooms:
         return 
     
+    # Emit the list of members
+    emit("update_members", list(rooms[room]["members"]), to=request.sid)
+    
     content = {
         "name": session.get("nickname"),
         "message": data["data"]
     }
     send(content, to=room)
     rooms[room]["messages"].append(content)
-    print(f"{session.get('name')} said: {data['data']}")
 
 
 @socketio.on("connect")
@@ -302,10 +287,15 @@ def connect():
         return
     
     join_room(room)
-    send({"name": name, "message": "has entered the room"}, to=room)
+    send({"name": name, "message": "Entered the room"}, to=room)
     rooms[room]["participants"] += 1
     rooms[room]["members"].append(name)
-    print(f"{name} joined room {room}")
+    # print(rooms[room])
+    
+    # Emit the list of members and past messages
+    emit("update_members", list(rooms[room]["members"]), to=room)
+    emit("past_messages", list(rooms[room]["messages"]), to=request.sid)
+
 
 
 @socketio.on("disconnect")

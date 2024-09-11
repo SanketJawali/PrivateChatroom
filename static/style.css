@@ -45,8 +45,9 @@ button:hover {
 }
 
 #msg-box {
+    height: 71%;
     overflow-y: scroll;
-    overflow: hidden;
+    overflow: auto;
 }
 
 #ephemera {
@@ -135,4 +136,14 @@ button:hover {
     align-items: center;
     gap: 50px;
     margin-top: 40px;
+}
+
+.text {
+    /* display: inline; */
+    width: 100%;
+}
+
+.muted {
+    float: right;
+    font-size: small;
 }
