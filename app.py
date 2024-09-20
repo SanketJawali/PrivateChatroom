@@ -8,7 +8,7 @@ from datetime import timedelta
 
 # Configure application
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'code'
+app.config['SECRET_KEY'] = 'very_secret_code'
 socketio = SocketIO(app)
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
@@ -69,7 +69,13 @@ def create():
 def homepage():
     """ View Homepage """
 
-    return render_template("homepage.html")
+    create_error = ""
+    create_error = session.pop("create_error", None)
+
+    join_error = ""
+    join_error = session.pop("join_error", None)
+
+    return render_template("homepage.html", join_error=join_error, create_error=create_error)
 
 
 @app.route("/index")
@@ -82,7 +88,10 @@ def index():
     join_error = ""
     join_error = session.pop("join_error", None)
 
-    return render_template("index.html", username=session.get("username"), join_error=join_error, create_error=create_error)
+    common_error = ""
+    common_error = session.pop("error_message", None)
+
+    return render_template("index.html", username=session.get("username"), join_error=join_error, create_error=create_error, common_error=common_error)
 
 
 @app.route("/join", methods=["GET", "POST"])
@@ -245,17 +254,14 @@ def room():
 
     room = session.get("room")
     
-    if not room:
-        msg = "No Room found"
-        return render_template("index.html", common_error=msg)
-    
     # Ensure that the room code is valid and exists in the `rooms` dictionary
     if room not in rooms:
-        msg = "Room does not exist"
-        return render_template("index.html", common_error=msg)
+        session["common_error"] = "Room does not exist"
+        if session.get("username"):
+            return redirect("/index")
+        return redirect("/")
 
-    members = rooms[room]["members"]
-    return render_template("room.html", code=room) 
+    return render_template("room.html", code=room)  
 
 
 @socketio.on("message")
@@ -306,17 +312,19 @@ def disconnect():
 
     if room in rooms:
         if name in rooms[room]["members"]:
-            rooms[room]["members"].remove(name)  # Remove the nickname from members
+            rooms[room]['members'].remove(name)
         
         rooms[room]["participants"] -= 1
 
-        if rooms[room]["participants"] <= 0:
-            del rooms[room]
+        send({"name": name, "message": "has left the room"}, to=room)
+        emit("update_members", list(rooms[room]["members"]), to=room)
     
-    send({"name": name, "message": "has left the room"}, to=room)
-    print(f"{name} has left the room {room}")
-
-
+        if rooms[room]["participants"] <= 0:
+            print(f"{room} deleted")
+            # print(rooms[room])
+            del rooms[room]
+            return
+    
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    socketio.run(app)
