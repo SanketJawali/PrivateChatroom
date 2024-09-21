@@ -1,23 +1,28 @@
 # Ephemera - A Private Chatroom Web App
 Video Demo: [URL HERE]
+
 #### Description:
 Ephemera is a private chatroom app designed for users who want to interact without sharing personal details like social media accounts or phone numbers. By simply sharing a code, you can create or join chatrooms to communicate securely with others. This app aims to address the growing concerns around privacy and cybersecurity by providing an anonymous space for conversations.
 
 #### Features:
 Private Chatrooms: Join or create chatrooms using unique codes for secure, invite-only communication.
+
 Temporary Rooms: Once all participants leave, the chatroom and all messages disappear, ensuring your conversations are temporary.
 User-Friendly Interface: Easy-to-navigate design for seamless chat experience.
 
 #### Technologies Used:
 Backend: Flask, Python
+
 Real-Time Communication: Flask-SocketIO
+
 Frontend: HTML, CSS, JavaScript
+
 Database: SQLite3 (temporary for future scaling options)
 
 #### Installation and Setup:
 Clone the repository:
 ```
-git clone <repository-url>
+git clone https://github.com/SanketJawali/PrivateChatroom
 ```
 Navigate to the project directory:
 ```
